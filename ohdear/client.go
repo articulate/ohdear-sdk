@@ -37,7 +37,7 @@ func NewClient(baseURL string, apiToken string) (*Client, error) {
 	return c, nil
 }
 
-func (c *Client) newRequest(method, path string, body interface{}) (*http.Request, error) {
+func (c *Client) NewRequest(method, path string, body interface{}) (*http.Request, error) {
 	rel := &url.URL{Path: path}
 	u := c.BaseURL.ResolveReference(rel)
 
@@ -70,8 +70,6 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	defer resp.Body.Close()
 
 	err = json.NewDecoder(resp.Body).Decode(v)
 	return resp, err

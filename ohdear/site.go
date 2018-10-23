@@ -20,14 +20,17 @@ type SiteService struct {
 }
 
 func (s *SiteService) ListSites() ([]Site, error) {
-	req, err := s.client.newRequest("get", "api/sites", nil)
+	req, err := s.client.NewRequest("get", "/api/sites", nil)
 	if err != nil {
 		return nil, err
 	}
-	var sites []Site
-	resp, err := s.client.do(req, sites)
-	defer resp.Body.Close()
 
+	var sites []Site
+
+	resp, err := s.client.do(req, sites)
+	if err != nil {
+		return nil, err
+	}
 	err = json.NewDecoder(resp.Body).Decode(&sites)
 	return sites, err
 }
