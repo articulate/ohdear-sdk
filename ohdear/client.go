@@ -54,9 +54,11 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 	if err != nil {
 		return nil, err
 	}
+
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
+
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.ApiToken)
@@ -70,7 +72,9 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
+	if v != nil {
+		err = json.NewDecoder(resp.Body).Decode(v)
+	}
 
-	err = json.NewDecoder(resp.Body).Decode(v)
 	return resp, err
 }
