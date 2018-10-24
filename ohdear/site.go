@@ -76,5 +76,3 @@ func (s *SiteService) DeleteSite(site *Site) error {
 	}
 	return nil
 }
-
-// func (s *SiteService) UpdateSite(s *Site) (Site, error) {}
