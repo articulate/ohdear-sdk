@@ -15,7 +15,8 @@ type Client struct {
 	ApiToken   string
 	httpClient *http.Client
 
-	SiteService *SiteService
+	SiteService  *SiteService
+	CheckService *CheckService
 }
 
 func NewClient(baseURL string, apiToken string) (*Client, error) {
@@ -33,7 +34,7 @@ func NewClient(baseURL string, apiToken string) (*Client, error) {
 	}
 
 	c.SiteService = &SiteService{client: c}
-
+	c.CheckService = &CheckService{client: c}
 	return c, nil
 }
 

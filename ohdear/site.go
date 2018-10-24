@@ -2,21 +2,6 @@ package ohdear
 
 import "fmt"
 
-// Types of check
-const (
-	UptimeCheck           = "uptime"
-	BrokenLinksCheck      = "broken_links"
-	CertHealthCheck       = "certificate_health"
-	MixedContentCheck     = "mixed_content"
-	CertTransparencyCheck = "certificate_transparency"
-)
-
-type Check struct {
-	Id      int    `json:"id,omitempty"`
-	Type    string `json:"type,omitempty"`
-	Enabled bool   `json:"enabled,omitempty"`
-}
-
 type Site struct {
 	Id                    int     `json:"id,omitempty"`
 	Url                   string  `json:"url,omitempty"`
