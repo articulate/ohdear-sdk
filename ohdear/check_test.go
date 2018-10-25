@@ -18,7 +18,7 @@ var _ = Describe("Check", func() {
 		client *Client
 	)
 
-	Context("GET /api/sites/:site/enable", func() {
+	Context("POST /api/sites/:site/enable", func() {
 
 		BeforeEach(func() {
 			client, _ = NewClient(testBaseURL, testToken)
@@ -34,13 +34,15 @@ var _ = Describe("Check", func() {
 				Post("/api/checks/42/enable").
 				Reply(204)
 
-			err := client.CheckService.EnableCheck(check)
+			resp, err := client.CheckService.EnableCheck(check)
 
 			Expect(err).To(BeNil())
+			Expect(resp.Status).To(Equal("204 No Content"))
+			Expect(gock.IsDone()).To(BeTrue())
 		})
 	})
 
-	Context("GET /api/sites/:site/disable", func() {
+	Context("POST /api/sites/:site/disable", func() {
 
 		BeforeEach(func() {
 			client, _ = NewClient(testBaseURL, testToken)
@@ -56,9 +58,11 @@ var _ = Describe("Check", func() {
 				Post("/api/checks/42/disable").
 				Reply(204)
 
-			err := client.CheckService.DisableCheck(check)
+			resp, err := client.CheckService.DisableCheck(check)
 
 			Expect(err).To(BeNil())
+			Expect(resp.Status).To(Equal("204 No Content"))
+			Expect(gock.IsDone()).To(BeTrue())
 		})
 	})
 })

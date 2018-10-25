@@ -1,6 +1,9 @@
 package ohdear
 
-import "fmt"
+import (
+	"fmt"
+	"net/http"
+)
 
 type Site struct {
 	Id                    int     `json:"id,omitempty"`
@@ -49,15 +52,11 @@ func (s *SiteService) CreateSite(site *Site) (*Site, error) {
 	return newSite, err
 }
 
-func (s *SiteService) DeleteSite(site *Site) error {
+func (s *SiteService) DeleteSite(site *Site) (*http.Response, error) {
 	sitePath := fmt.Sprintf("/api/sites/%d", site.Id)
 
 	req, err := s.client.NewRequest("DELETE", sitePath, nil)
 
-	_, err = s.client.do(req, nil)
-
-	if err != nil {
-		return err
-	}
-	return nil
+	resp, err := s.client.do(req, nil)
+	return resp, err
 }

@@ -2,6 +2,7 @@ package ohdear
 
 import (
 	"fmt"
+	"net/http"
 )
 
 const (
@@ -22,32 +23,26 @@ type CheckService struct {
 	client *Client
 }
 
-func (c *CheckService) EnableCheck(check *Check) error {
+func (c *CheckService) EnableCheck(check *Check) (*http.Response, error) {
 	checkPath := fmt.Sprintf("/api/checks/%d/enable", check.Id)
 
 	req, err := c.client.NewRequest("POST", checkPath, nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	_, err = c.client.do(req, nil)
-	if err != nil {
-		return err
-	}
-	return nil
+	resp, err := c.client.do(req, nil)
+	return resp, err
 }
 
-func (c *CheckService) DisableCheck(check *Check) error {
+func (c *CheckService) DisableCheck(check *Check) (*http.Response, error) {
 	checkPath := fmt.Sprintf("/api/checks/%d/disable", check.Id)
 
 	req, err := c.client.NewRequest("POST", checkPath, nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	_, err = c.client.do(req, nil)
-	if err != nil {
-		return err
-	}
-	return nil
+	resp, err := c.client.do(req, nil)
+	return resp, err
 }

@@ -55,6 +55,7 @@ var _ = Describe("Site", func() {
 
 			Expect(err).To(BeNil())
 			Expect(res).To(Equal(sites))
+			Expect(gock.IsDone()).To(BeTrue())
 		})
 	})
 
@@ -109,6 +110,7 @@ var _ = Describe("Site", func() {
 			Expect(res.Url).To(Equal(responseSite.Url))
 			Expect(res.TeamId).To(Equal(responseSite.TeamId))
 			Expect(len(res.Checks)).To(Equal(len(responseSite.Checks)))
+			Expect(gock.IsDone()).To(BeTrue())
 		})
 	})
 
@@ -125,11 +127,13 @@ var _ = Describe("Site", func() {
 
 			gock.New("http://test.org").
 				Delete("/api/sites/170").
-				Reply(200)
+				Reply(204)
 
-			err := client.SiteService.DeleteSite(site)
+			resp, err := client.SiteService.DeleteSite(site)
 
 			Expect(err).To(BeNil())
+			Expect(gock.IsDone()).To(BeTrue())
+			Expect(resp.Status).To(Equal("204 No Content"))
 		})
 	})
 })
