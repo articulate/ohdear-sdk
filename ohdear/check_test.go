@@ -31,7 +31,7 @@ var _ = Describe("Check", func() {
 			}
 
 			gock.New("http://test.org").
-				Get("/api/checks/42/enable").
+				Post("/api/checks/42/enable").
 				Reply(204)
 
 			err := client.CheckService.EnableCheck(check)
@@ -53,7 +53,7 @@ var _ = Describe("Check", func() {
 			}
 
 			gock.New("http://test.org").
-				Get("/api/checks/42/disable").
+				Post("/api/checks/42/disable").
 				Reply(204)
 
 			err := client.CheckService.DisableCheck(check)

@@ -25,7 +25,7 @@ type CheckService struct {
 func (c *CheckService) EnableCheck(check *Check) error {
 	checkPath := fmt.Sprintf("/api/checks/%d/enable", check.Id)
 
-	req, err := c.client.NewRequest("GET", checkPath, nil)
+	req, err := c.client.NewRequest("POST", checkPath, nil)
 	if err != nil {
 		return err
 	}
@@ -40,7 +40,7 @@ func (c *CheckService) EnableCheck(check *Check) error {
 func (c *CheckService) DisableCheck(check *Check) error {
 	checkPath := fmt.Sprintf("/api/checks/%d/disable", check.Id)
 
-	req, err := c.client.NewRequest("GET", checkPath, nil)
+	req, err := c.client.NewRequest("POST", checkPath, nil)
 	if err != nil {
 		return err
 	}
