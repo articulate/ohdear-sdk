@@ -24,19 +24,15 @@ type CheckService struct {
 }
 
 func (c *CheckService) EnableCheck(check *Check) (*http.Response, error) {
-	checkPath := fmt.Sprintf("/api/checks/%d/enable", check.Id)
-
-	req, err := c.client.NewRequest("POST", checkPath, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := c.client.do(req, nil)
-	return resp, err
+	return c.performCheckAction(check.Id, "enable")
 }
 
 func (c *CheckService) DisableCheck(check *Check) (*http.Response, error) {
-	checkPath := fmt.Sprintf("/api/checks/%d/disable", check.Id)
+	return c.performCheckAction(check.Id, "disable")
+}
+
+func (c *CheckService) performCheckAction(id int, lifecycleAction string) (*http.Response, error) {
+	checkPath := fmt.Sprintf("/api/checks/%d/%s", id, lifecycleAction)
 
 	req, err := c.client.NewRequest("POST", checkPath, nil)
 	if err != nil {

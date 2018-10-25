@@ -134,6 +134,7 @@ var _ = Describe("Site", func() {
 			Expect(err).To(BeNil())
 			Expect(gock.IsDone()).To(BeTrue())
 			Expect(resp.Status).To(Equal("204 No Content"))
+			Expect(gock.IsDone()).To(BeTrue())
 		})
 	})
 })

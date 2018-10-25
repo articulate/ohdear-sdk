@@ -21,7 +21,7 @@ type SiteService struct {
 }
 
 func (s *SiteService) ListSites() ([]Site, error) {
-	req, err := s.client.NewRequest("GET", "/api/sites", []string{})
+	req, err := s.client.NewRequest("GET", "/api/sites", nil)
 	if err != nil {
 		return nil, err
 	}
