@@ -6,9 +6,9 @@ import (
 )
 
 type Site struct {
-	Id                    int      `json:"id,omitempty"`
+	Id                    string   `json:"id,omitempty"`
 	Url                   string   `json:"url,omitempty"`
-	TeamId                int      `json:"team_id,omitempty"`
+	TeamId                string   `json:"team_id,omitempty"`
 	LatestRunDate         string   `json:"latest_run_date,omitempty"`
 	SummarizedCheckResult string   `json:"summarized_check_result,omitempty"`
 	CreatedAt             string   `json:"created_at,omitempty"`
@@ -36,20 +36,19 @@ func (s *SiteService) ListSites() ([]Site, error) {
 	return sites, err
 }
 
-func (s *SiteService) CreateSite(site *Site) (*Site, error) {
+func (s *SiteService) CreateSite(site *Site) (*Site, *http.Response, error) {
 	req, err := s.client.NewRequest("POST", "/api/sites", site)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	newSite := &Site{}
 
-	_, err = s.client.do(req, &newSite)
+	resp, err := s.client.do(req, &newSite)
 	if err != nil {
-		return nil, err
+		return nil, resp, err
 	}
-
-	return newSite, err
+	return newSite, resp, err
 }
 
 func (s *SiteService) DeleteSite(site *Site) (*http.Response, error) {

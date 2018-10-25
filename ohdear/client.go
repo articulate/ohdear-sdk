@@ -15,8 +15,9 @@ type Client struct {
 	ApiToken   string
 	httpClient *http.Client
 
-	SiteService  *SiteService
-	CheckService *CheckService
+	SiteService     *SiteService
+	CheckService    *CheckService
+	UserInfoService *UserInfoService
 }
 
 func NewClient(baseURL string, apiToken string) (*Client, error) {
@@ -35,9 +36,18 @@ func NewClient(baseURL string, apiToken string) (*Client, error) {
 
 	c.SiteService = &SiteService{client: c}
 	c.CheckService = &CheckService{client: c}
+	c.UserInfoService = &UserInfoService{client: c}
 	return c, nil
 }
 
+func (c *Client) validate() (bool, error) {
+	_, _, err := c.UserInfoService.GetUserInfo()
+	if err != nil {
+		return false, err
+	} else {
+		return true, nil
+	}
+}
 func (c *Client) NewRequest(method, path string, body interface{}) (*http.Request, error) {
 	rel := &url.URL{Path: path}
 	u := c.BaseURL.ResolveReference(rel)
