@@ -6,6 +6,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 type Client struct {
@@ -60,7 +62,7 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 			return nil, err
 		}
 	}
-
+	spew.Dump(body)
 	req, err := http.NewRequest(method, u.String(), buf)
 	if err != nil {
 		return nil, err
@@ -80,6 +82,7 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 
 func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 	resp, err := c.httpClient.Do(req)
+
 	if err != nil {
 		return nil, err
 	}

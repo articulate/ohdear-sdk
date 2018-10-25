@@ -30,14 +30,14 @@ var _ = Describe("Site", func() {
 				Site{
 					Id:     1,
 					Url:    "http://foobar.com",
-					TeamId: 170,
-					Checks: []Check{
-						Check{
+					TeamId: "170",
+					Checks: []*Check{
+						&Check{
 							Id:      1,
 							Type:    UptimeCheck,
 							Enabled: true,
 						},
-						Check{
+						&Check{
 							Id:      1,
 							Type:    BrokenLinksCheck,
 							Enabled: true,
@@ -68,12 +68,12 @@ var _ = Describe("Site", func() {
 		It("should return a new site", func() {
 			site := &Site{
 				Url:    "http://foobar.com",
-				TeamId: 170,
-				Checks: []Check{
-					Check{
+				TeamId: "170",
+				Checks: []*Check{
+					&Check{
 						Type: UptimeCheck,
 					},
-					Check{
+					&Check{
 						Type: BrokenLinksCheck,
 					},
 				},
@@ -82,14 +82,14 @@ var _ = Describe("Site", func() {
 			responseSite := &Site{
 				Id:     1,
 				Url:    "http://foobar.com",
-				TeamId: 170,
-				Checks: []Check{
-					Check{
+				TeamId: "170",
+				Checks: []*Check{
+					&Check{
 						Id:      1,
 						Type:    UptimeCheck,
 						Enabled: true,
 					},
-					Check{
+					&Check{
 						Id:      2,
 						Type:    BrokenLinksCheck,
 						Enabled: true,
@@ -102,14 +102,15 @@ var _ = Describe("Site", func() {
 				MatchType("json").
 				JSON(site).
 				Reply(201).
-				JSON(site)
+				JSON(responseSite)
 
-			res, err := client.SiteService.CreateSite(site)
+			site, _, err := client.SiteService.CreateSite(site)
 
 			Expect(err).To(BeNil())
-			Expect(res.Url).To(Equal(responseSite.Url))
-			Expect(res.TeamId).To(Equal(responseSite.TeamId))
-			Expect(len(res.Checks)).To(Equal(len(responseSite.Checks)))
+			Expect(site.Id).To(Equal(responseSite.Id))
+			Expect(site.Url).To(Equal(responseSite.Url))
+			Expect(site.TeamId).To(Equal(responseSite.TeamId))
+			Expect(len(site.Checks)).To(Equal(len(responseSite.Checks)))
 			Expect(gock.IsDone()).To(BeTrue())
 		})
 	})

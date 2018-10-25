@@ -6,7 +6,7 @@ import (
 )
 
 type Site struct {
-	Id                    string   `json:"id,omitempty"`
+	Id                    int      `json:"id,omitempty"`
 	Url                   string   `json:"url,omitempty"`
 	TeamId                string   `json:"team_id,omitempty"`
 	LatestRunDate         string   `json:"latest_run_date,omitempty"`
@@ -34,6 +34,19 @@ func (s *SiteService) ListSites() ([]Site, error) {
 	}
 
 	return sites, err
+}
+
+func (s *SiteService) GetSite(site *Site) (*Site, *http.Response, error) {
+	sitePath := fmt.Sprintf("/api/sites/%d", site.Id)
+	req, err := s.client.NewRequest("GET", sitePath, site)
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	newSite := &Site{}
+	resp, err := s.client.do(req, newSite)
+	return newSite, resp, err
 }
 
 func (s *SiteService) CreateSite(site *Site) (*Site, *http.Response, error) {
