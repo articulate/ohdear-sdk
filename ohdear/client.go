@@ -15,7 +15,8 @@ type Client struct {
 	ApiToken   string
 	httpClient *http.Client
 
-	SiteService *SiteService
+	SiteService  *SiteService
+	CheckService *CheckService
 }
 
 func NewClient(baseURL string, apiToken string) (*Client, error) {
@@ -33,11 +34,11 @@ func NewClient(baseURL string, apiToken string) (*Client, error) {
 	}
 
 	c.SiteService = &SiteService{client: c}
-
+	c.CheckService = &CheckService{client: c}
 	return c, nil
 }
 
-func (c *Client) newRequest(method, path string, body interface{}) (*http.Request, error) {
+func (c *Client) NewRequest(method, path string, body interface{}) (*http.Request, error) {
 	rel := &url.URL{Path: path}
 	u := c.BaseURL.ResolveReference(rel)
 
@@ -54,9 +55,11 @@ func (c *Client) newRequest(method, path string, body interface{}) (*http.Reques
 	if err != nil {
 		return nil, err
 	}
+
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
+
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.ApiToken)
@@ -70,9 +73,9 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
+	if v != nil {
+		err = json.NewDecoder(resp.Body).Decode(v)
+	}
 
-	defer resp.Body.Close()
-
-	err = json.NewDecoder(resp.Body).Decode(v)
 	return resp, err
 }

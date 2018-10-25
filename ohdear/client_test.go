@@ -1,33 +1,46 @@
-package ohdear
+package ohdear_test
 
 import (
 	"fmt"
-	"testing"
 
-	"github.com/nbio/st"
+	. "github.com/articulate/ohdear-sdk/ohdear"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
-const (
-	testBaseURL = "http://test.org"
-	testToken   = "foobarbazquux"
-)
+var _ = Describe("./Client", func() {
 
-func TestClientSetup(t *testing.T) {
-	// wantPath := "api/v1/sites"
-	client, err := NewClient(testBaseURL, testToken)
+	const (
+		testBaseURL = "http://test.org"
+		testToken   = "foobarbazquux"
+	)
 
-	st.Assert(t, nil, err)
-	st.Assert(t, client.BaseURL.String(), testBaseURL)
-}
+	var (
+		client *Client
+	)
 
-func TestClientToken(t *testing.T) {
-	client, err := NewClient(testBaseURL, testToken)
+	BeforeEach(func() {
+		client, _ = NewClient(testBaseURL, testToken)
+	})
 
-	var res []string
-	req, err := client.newRequest("get", "/some/path", res)
-	st.Assert(t, nil, err)
+	Context("Base URL", func() {
+		It("Should be correct", func() {
+			Expect(client.BaseURL.String()).To(Equal(testBaseURL))
+		})
+	})
 
-	header := req.Header.Get("Authorization")
-	wantHeader := fmt.Sprintf("Bearer %v", testToken)
-	st.Assert(t, header, wantHeader)
-}
+	// TODO Use reflection to gain access to newRequest as
+	// private function
+	Context("API Token", func() {
+		It("Should be in the correct header", func() {
+			var res []string
+			req, err := client.NewRequest("get", "/some/path", res)
+			Expect(err).To(BeNil())
+
+			header := req.Header.Get("Authorization")
+			wantHeader := fmt.Sprintf("Bearer %v", testToken)
+
+			Expect(header).To(Equal(wantHeader))
+		})
+	})
+})
