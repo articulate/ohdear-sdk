@@ -6,8 +6,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 type Client struct {
@@ -17,9 +15,9 @@ type Client struct {
 	ApiToken   string
 	httpClient *http.Client
 
-	SiteService     *SiteService
-	CheckService    *CheckService
-	UserInfoService *UserInfoService
+	SiteService  *SiteService
+	CheckService *CheckService
+	TeamService  *TeamService
 }
 
 func NewClient(baseURL string, apiToken string) (*Client, error) {
@@ -38,18 +36,20 @@ func NewClient(baseURL string, apiToken string) (*Client, error) {
 
 	c.SiteService = &SiteService{client: c}
 	c.CheckService = &CheckService{client: c}
-	c.UserInfoService = &UserInfoService{client: c}
+	c.TeamService = &TeamService{client: c}
+
 	return c, nil
 }
 
 func (c *Client) validate() (bool, error) {
-	_, _, err := c.UserInfoService.GetUserInfo()
+	_, _, err := c.TeamService.ListTeams()
 	if err != nil {
 		return false, err
 	} else {
 		return true, nil
 	}
 }
+
 func (c *Client) NewRequest(method, path string, body interface{}) (*http.Request, error) {
 	rel := &url.URL{Path: path}
 	u := c.BaseURL.ResolveReference(rel)
@@ -62,7 +62,7 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 			return nil, err
 		}
 	}
-	spew.Dump(body)
+
 	req, err := http.NewRequest(method, u.String(), buf)
 	if err != nil {
 		return nil, err
