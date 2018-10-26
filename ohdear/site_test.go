@@ -18,7 +18,7 @@ var _ = Describe("Site", func() {
 		client *Client
 	)
 
-	Context("POST /api/sites", func() {
+	Context("GET /api/sites", func() {
 
 		BeforeEach(func() {
 			client, _ = NewClient(testBaseURL, testToken)
@@ -55,6 +55,45 @@ var _ = Describe("Site", func() {
 
 			Expect(err).To(BeNil())
 			Expect(res).To(Equal(sites))
+			Expect(gock.IsDone()).To(BeTrue())
+		})
+	})
+
+	Context("GET /api/sites/:id", func() {
+
+		BeforeEach(func() {
+			client, _ = NewClient(testBaseURL, testToken)
+		})
+
+		It("Should get the site by ID", func() {
+
+			siteData := &Site{
+				Id:     1,
+				Url:    "http://foobar.com",
+				TeamId: "170",
+				Checks: []*Check{
+					&Check{
+						Id:      1,
+						Type:    UptimeCheck,
+						Enabled: true,
+					},
+					&Check{
+						Id:      1,
+						Type:    BrokenLinksCheck,
+						Enabled: true,
+					},
+				},
+			}
+
+			gock.New("http://test.org").
+				Get("/api/sites/1").
+				Reply(200).
+				JSON(siteData)
+
+			site, _, err := client.SiteService.GetSite("1")
+
+			Expect(err).To(BeNil())
+			Expect(site).To(Equal(siteData))
 			Expect(gock.IsDone()).To(BeTrue())
 		})
 	})

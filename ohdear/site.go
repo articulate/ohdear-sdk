@@ -36,17 +36,17 @@ func (s *SiteService) ListSites() ([]Site, error) {
 	return sites, err
 }
 
-func (s *SiteService) GetSite(site *Site) (*Site, *http.Response, error) {
-	sitePath := fmt.Sprintf("/api/sites/%d", site.Id)
-	req, err := s.client.NewRequest("GET", sitePath, site)
+func (s *SiteService) GetSite(siteId string) (*Site, *http.Response, error) {
+	sitePath := fmt.Sprintf("/api/sites/%s", siteId)
 
+	site := &Site{}
+	req, err := s.client.NewRequest("GET", sitePath, site)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	newSite := &Site{}
-	resp, err := s.client.do(req, newSite)
-	return newSite, resp, err
+	resp, err := s.client.do(req, site)
+	return site, resp, err
 }
 
 func (s *SiteService) CreateSite(site *Site) (*Site, *http.Response, error) {
