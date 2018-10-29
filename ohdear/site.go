@@ -8,7 +8,7 @@ import (
 type Site struct {
 	Id                    int      `json:"id,omitempty"`
 	Url                   string   `json:"url,omitempty"`
-	TeamId                string   `json:"team_id,omitempty"`
+	TeamId                int      `json:"team_id,omitempty"`
 	LatestRunDate         string   `json:"latest_run_date,omitempty"`
 	SummarizedCheckResult string   `json:"summarized_check_result,omitempty"`
 	CreatedAt             string   `json:"created_at,omitempty"`
@@ -36,8 +36,8 @@ func (s *SiteService) ListSites() ([]Site, error) {
 	return sites, err
 }
 
-func (s *SiteService) GetSite(siteId string) (*Site, *http.Response, error) {
-	sitePath := fmt.Sprintf("/api/sites/%s", siteId)
+func (s *SiteService) GetSite(siteId int) (*Site, *http.Response, error) {
+	sitePath := fmt.Sprintf("/api/sites/%d", siteId)
 
 	site := &Site{}
 	req, err := s.client.NewRequest("GET", sitePath, site)
@@ -64,8 +64,8 @@ func (s *SiteService) CreateSite(site *Site) (*Site, *http.Response, error) {
 	return newSite, resp, err
 }
 
-func (s *SiteService) DeleteSite(site *Site) (*http.Response, error) {
-	sitePath := fmt.Sprintf("/api/sites/%d", site.Id)
+func (s *SiteService) DeleteSite(siteId int) (*http.Response, error) {
+	sitePath := fmt.Sprintf("/api/sites/%d", siteId)
 
 	req, err := s.client.NewRequest("DELETE", sitePath, nil)
 

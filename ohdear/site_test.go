@@ -30,7 +30,7 @@ var _ = Describe("Site", func() {
 				Site{
 					Id:     1,
 					Url:    "http://foobar.com",
-					TeamId: "170",
+					TeamId: 170,
 					Checks: []*Check{
 						&Check{
 							Id:      1,
@@ -70,7 +70,7 @@ var _ = Describe("Site", func() {
 			siteData := &Site{
 				Id:     1,
 				Url:    "http://foobar.com",
-				TeamId: "170",
+				TeamId: 170,
 				Checks: []*Check{
 					&Check{
 						Id:      1,
@@ -90,7 +90,7 @@ var _ = Describe("Site", func() {
 				Reply(200).
 				JSON(siteData)
 
-			site, _, err := client.SiteService.GetSite("1")
+			site, _, err := client.SiteService.GetSite(1)
 
 			Expect(err).To(BeNil())
 			Expect(site).To(Equal(siteData))
@@ -107,7 +107,7 @@ var _ = Describe("Site", func() {
 		It("should return a new site", func() {
 			site := &Site{
 				Url:    "http://foobar.com",
-				TeamId: "170",
+				TeamId: 170,
 				Checks: []*Check{
 					&Check{
 						Type: UptimeCheck,
@@ -121,7 +121,7 @@ var _ = Describe("Site", func() {
 			responseSite := &Site{
 				Id:     1,
 				Url:    "http://foobar.com",
-				TeamId: "170",
+				TeamId: 170,
 				Checks: []*Check{
 					&Check{
 						Id:      1,
@@ -169,7 +169,7 @@ var _ = Describe("Site", func() {
 				Delete("/api/sites/170").
 				Reply(204)
 
-			resp, err := client.SiteService.DeleteSite(site)
+			resp, err := client.SiteService.DeleteSite(site.Id)
 
 			Expect(err).To(BeNil())
 			Expect(gock.IsDone()).To(BeTrue())
