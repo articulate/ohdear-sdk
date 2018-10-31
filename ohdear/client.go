@@ -43,11 +43,7 @@ func NewClient(baseURL string, apiToken string) (*Client, error) {
 
 func (c *Client) validate() (bool, error) {
 	_, _, err := c.TeamService.ListTeams()
-	if err != nil {
-		return false, err
-	} else {
-		return true, nil
-	}
+	return err == nil, err
 }
 
 func (c *Client) NewRequest(method, path string, body interface{}) (*http.Request, error) {

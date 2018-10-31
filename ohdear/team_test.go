@@ -26,27 +26,27 @@ var _ = Describe("Team", func() {
 
 		It("Should get a list of teams", func() {
 
-			teams := []*Team{
-				&Team{
-					Id:   1,
-					Name: "Goonies",
+			userInfo := &UserInfo{
+				ID: 1,
+				TeamData: &TeamData{
+					Teams: []*Team{
+						&Team{
+							ID:   1,
+							Name: "The Goonies",
+						},
+					},
 				},
-			}
-
-			userinfo := &UserInfo{
-				Id:    1,
-				Teams: teams,
 			}
 
 			gock.New("http://test.org").
 				Get("/api/me").
 				Reply(200).
-				JSON(userinfo)
+				JSON(userInfo)
 
 			newTeams, _, err := client.TeamService.ListTeams()
 
 			Expect(err).To(BeNil())
-			Expect(newTeams).To(Equal(teams))
+			Expect(newTeams).To(Equal(userInfo.TeamData.Teams))
 			Expect(gock.IsDone()).To(BeTrue())
 		})
 	})
