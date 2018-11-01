@@ -3,6 +3,7 @@ package ohdear
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -81,7 +82,12 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 
 	if err != nil {
 		return nil, err
+	} else if resp.StatusCode >= 300 {
+		err = fmt.Errorf("Invalid Status: %d", resp.StatusCode)
+
+		return resp, err
 	}
+
 	if v != nil {
 		err = json.NewDecoder(resp.Body).Decode(v)
 	}

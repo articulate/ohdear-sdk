@@ -51,10 +51,11 @@ var _ = Describe("Site", func() {
 				Reply(200).
 				JSON(sites)
 
-			res, err := client.SiteService.ListSites()
+			res, resp, err := client.SiteService.ListSites()
 
 			Expect(err).To(BeNil())
 			Expect(res).To(Equal(sites))
+			Expect(resp.StatusCode).To(Equal(200))
 			Expect(gock.IsDone()).To(BeTrue())
 		})
 	})
