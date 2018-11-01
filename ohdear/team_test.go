@@ -28,12 +28,10 @@ var _ = Describe("Team", func() {
 
 			userInfo := &UserInfo{
 				ID: 1,
-				TeamData: &TeamData{
-					Teams: []*Team{
-						&Team{
-							ID:   1,
-							Name: "The Goonies",
-						},
+				Teams: []Team{
+					Team{
+						ID:   1,
+						Name: "The Goonies",
 					},
 				},
 			}
@@ -46,7 +44,7 @@ var _ = Describe("Team", func() {
 			newTeams, _, err := client.TeamService.ListTeams()
 
 			Expect(err).To(BeNil())
-			Expect(newTeams).To(Equal(userInfo.TeamData.Teams))
+			Expect(newTeams).To(Equal(userInfo.Teams))
 			Expect(gock.IsDone()).To(BeTrue())
 		})
 	})

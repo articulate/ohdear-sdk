@@ -2,17 +2,15 @@ package ohdear
 
 import (
 	"net/http"
-)
 
-// TeamData holds a portion of the response from OhDear's `me` API endpoint
-type TeamData struct {
-	Teams []*Team `json:"teams,omitempty"`
-}
+	"github.com/prometheus/common/log"
+)
 
 // UserInfo is the top-level struct representing data returned from OhDear's `me` API endpoint
 type UserInfo struct {
-	ID       int       `json:"id,omitempty"`
-	TeamData *TeamData `json:"data,omitempty"`
+	ID    int    `json:"id,omitempty"`
+	Email string `json:"email,omitempty"`
+	Teams []Team `json:"teams,omitempty"`
 }
 
 // Team holds the data for each team existing in OhDear
@@ -27,8 +25,8 @@ type TeamService struct {
 }
 
 // ListTeams hits the `me` API endpoint and returns a list of teams
-func (t *TeamService) ListTeams() ([]*Team, *http.Response, error) {
-	req, err := t.client.NewRequest("GET", "/api/me", nil)
+func (t *TeamService) ListTeams() ([]Team, *http.Response, error) {
+	req, err := t.client.NewRequest("GET", "/api/me?include=teams", nil)
 
 	if err != nil {
 		return nil, nil, err
@@ -37,5 +35,9 @@ func (t *TeamService) ListTeams() ([]*Team, *http.Response, error) {
 	var userinfo = &UserInfo{}
 
 	resp, err := t.client.do(req, userinfo)
-	return userinfo.TeamData.Teams, resp, err
+	if resp.StatusCode >= 300 {
+		log.Errorf("Error Retrieving teams from OhDear: %v", err.Error)
+		return nil, resp, err
+	}
+	return userinfo.Teams, resp, err
 }
