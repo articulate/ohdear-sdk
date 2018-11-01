@@ -31,13 +31,13 @@ var _ = Describe("Site", func() {
 					Id:     1,
 					Url:    "http://foobar.com",
 					TeamId: 170,
-					Checks: []*Check{
-						&Check{
+					Checks: []Check{
+						Check{
 							Id:      1,
 							Type:    UptimeCheck,
 							Enabled: true,
 						},
-						&Check{
+						Check{
 							Id:      1,
 							Type:    BrokenLinksCheck,
 							Enabled: true,
@@ -72,13 +72,13 @@ var _ = Describe("Site", func() {
 				Id:     1,
 				Url:    "http://foobar.com",
 				TeamId: 170,
-				Checks: []*Check{
-					&Check{
+				Checks: []Check{
+					Check{
 						Id:      1,
 						Type:    UptimeCheck,
 						Enabled: true,
 					},
-					&Check{
+					Check{
 						Id:      1,
 						Type:    BrokenLinksCheck,
 						Enabled: true,
@@ -109,11 +109,11 @@ var _ = Describe("Site", func() {
 			site := &Site{
 				Url:    "http://foobar.com",
 				TeamId: 170,
-				Checks: []*Check{
-					&Check{
+				Checks: []Check{
+					Check{
 						Type: UptimeCheck,
 					},
-					&Check{
+					Check{
 						Type: BrokenLinksCheck,
 					},
 				},
@@ -123,13 +123,13 @@ var _ = Describe("Site", func() {
 				Id:     1,
 				Url:    "http://foobar.com",
 				TeamId: 170,
-				Checks: []*Check{
-					&Check{
+				Checks: []Check{
+					Check{
 						Id:      1,
 						Type:    UptimeCheck,
 						Enabled: true,
 					},
-					&Check{
+					Check{
 						Id:      2,
 						Type:    BrokenLinksCheck,
 						Enabled: true,

@@ -9,14 +9,14 @@ import (
 
 // Site represents an OhDear Site resource
 type Site struct {
-	Id                    int      `json:"id,omitempty"`
-	Url                   string   `json:"url,omitempty"`
-	TeamId                int      `json:"team_id,omitempty"`
-	LatestRunDate         string   `json:"latest_run_date,omitempty"`
-	SummarizedCheckResult string   `json:"summarized_check_result,omitempty"`
-	CreatedAt             string   `json:"created_at,omitempty"`
-	UpdatedAt             string   `json:"updates_at,omitempty"`
-	Checks                []*Check `json:"checks,omitempty"`
+	Id                    int     `json:"id,omitempty"`
+	Url                   string  `json:"url,omitempty"`
+	TeamId                int     `json:"team_id,omitempty"`
+	LatestRunDate         string  `json:"latest_run_date,omitempty"`
+	SummarizedCheckResult string  `json:"summarized_check_result,omitempty"`
+	CreatedAt             string  `json:"created_at,omitempty"`
+	UpdatedAt             string  `json:"updates_at,omitempty"`
+	Checks                []Check `json:"checks,omitempty"`
 }
 
 // SiteService is a service object used to access the site API resource
