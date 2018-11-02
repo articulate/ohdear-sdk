@@ -13,6 +13,15 @@ const (
 	CertTransparencyCheck = "certificate_transparency"
 )
 
+// Collection of all check types - for iteration
+var CheckTypes = []string{
+	UptimeCheck,
+	BrokenLinksCheck,
+	CertHealthCheck,
+	MixedContentCheck,
+	CertTransparencyCheck,
+}
+
 type Check struct {
 	Id      int    `json:"id,omitempty"`
 	Type    string `json:"type,omitempty"`

@@ -3,6 +3,7 @@ package ohdear
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -17,6 +18,7 @@ type Client struct {
 
 	SiteService  *SiteService
 	CheckService *CheckService
+	TeamService  *TeamService
 }
 
 func NewClient(baseURL string, apiToken string) (*Client, error) {
@@ -35,7 +37,14 @@ func NewClient(baseURL string, apiToken string) (*Client, error) {
 
 	c.SiteService = &SiteService{client: c}
 	c.CheckService = &CheckService{client: c}
+	c.TeamService = &TeamService{client: c}
+
 	return c, nil
+}
+
+func (c *Client) validate() (bool, error) {
+	_, _, err := c.TeamService.ListTeams()
+	return err == nil, err
 }
 
 func (c *Client) NewRequest(method, path string, body interface{}) (*http.Request, error) {
@@ -70,9 +79,15 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 
 func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 	resp, err := c.httpClient.Do(req)
+
 	if err != nil {
 		return nil, err
+	} else if resp.StatusCode >= 300 {
+		err = fmt.Errorf("Invalid Status: %d", resp.StatusCode)
+
+		return resp, err
 	}
+
 	if v != nil {
 		err = json.NewDecoder(resp.Body).Decode(v)
 	}

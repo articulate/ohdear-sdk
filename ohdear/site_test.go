@@ -18,7 +18,7 @@ var _ = Describe("Site", func() {
 		client *Client
 	)
 
-	Context("POST /api/sites", func() {
+	Context("GET /api/sites", func() {
 
 		BeforeEach(func() {
 			client, _ = NewClient(testBaseURL, testToken)
@@ -51,10 +51,50 @@ var _ = Describe("Site", func() {
 				Reply(200).
 				JSON(sites)
 
-			res, err := client.SiteService.ListSites()
+			res, resp, err := client.SiteService.ListSites()
 
 			Expect(err).To(BeNil())
 			Expect(res).To(Equal(sites))
+			Expect(resp.StatusCode).To(Equal(200))
+			Expect(gock.IsDone()).To(BeTrue())
+		})
+	})
+
+	Context("GET /api/sites/:id", func() {
+
+		BeforeEach(func() {
+			client, _ = NewClient(testBaseURL, testToken)
+		})
+
+		It("Should get the site by ID", func() {
+
+			siteData := &Site{
+				Id:     1,
+				Url:    "http://foobar.com",
+				TeamId: 170,
+				Checks: []Check{
+					Check{
+						Id:      1,
+						Type:    UptimeCheck,
+						Enabled: true,
+					},
+					Check{
+						Id:      1,
+						Type:    BrokenLinksCheck,
+						Enabled: true,
+					},
+				},
+			}
+
+			gock.New("http://test.org").
+				Get("/api/sites/1").
+				Reply(200).
+				JSON(siteData)
+
+			site, _, err := client.SiteService.GetSite(1)
+
+			Expect(err).To(BeNil())
+			Expect(site).To(Equal(siteData))
 			Expect(gock.IsDone()).To(BeTrue())
 		})
 	})
@@ -102,14 +142,15 @@ var _ = Describe("Site", func() {
 				MatchType("json").
 				JSON(site).
 				Reply(201).
-				JSON(site)
+				JSON(responseSite)
 
-			res, err := client.SiteService.CreateSite(site)
+			site, _, err := client.SiteService.CreateSite(site)
 
 			Expect(err).To(BeNil())
-			Expect(res.Url).To(Equal(responseSite.Url))
-			Expect(res.TeamId).To(Equal(responseSite.TeamId))
-			Expect(len(res.Checks)).To(Equal(len(responseSite.Checks)))
+			Expect(site.Id).To(Equal(responseSite.Id))
+			Expect(site.Url).To(Equal(responseSite.Url))
+			Expect(site.TeamId).To(Equal(responseSite.TeamId))
+			Expect(len(site.Checks)).To(Equal(len(responseSite.Checks)))
 			Expect(gock.IsDone()).To(BeTrue())
 		})
 	})
@@ -129,7 +170,7 @@ var _ = Describe("Site", func() {
 				Delete("/api/sites/170").
 				Reply(204)
 
-			resp, err := client.SiteService.DeleteSite(site)
+			resp, err := client.SiteService.DeleteSite(site.Id)
 
 			Expect(err).To(BeNil())
 			Expect(gock.IsDone()).To(BeTrue())
