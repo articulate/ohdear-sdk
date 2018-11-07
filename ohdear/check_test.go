@@ -27,7 +27,7 @@ var _ = Describe("Check", func() {
 		It("Should return a 204", func() {
 
 			check := &Check{
-				Id: 42,
+				ID: 42,
 			}
 
 			gock.New("http://test.org").
@@ -51,7 +51,7 @@ var _ = Describe("Check", func() {
 		It("Should return a 204", func() {
 
 			check := &Check{
-				Id: 42,
+				ID: 42,
 			}
 
 			gock.New("http://test.org").

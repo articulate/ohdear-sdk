@@ -26,7 +26,7 @@ type TeamService struct {
 
 // ListTeams hits the `me` API endpoint and returns a list of teams
 func (t *TeamService) ListTeams() ([]Team, *http.Response, error) {
-	req, err := t.client.NewRequest("GET", "/api/me?include=teams", nil)
+	req, err := t.client.NewRequest("GET", "/api/me", nil)
 
 	if err != nil {
 		return nil, nil, err
@@ -35,6 +35,10 @@ func (t *TeamService) ListTeams() ([]Team, *http.Response, error) {
 	var userinfo = &UserInfo{}
 
 	resp, err := t.client.do(req, userinfo)
+	if err != nil {
+		log.Fatalf("Error retrieving teams from OhDear: %s", err)
+	}
+
 	if resp.StatusCode >= 300 {
 		log.Errorf("Error Retrieving teams from OhDear: %v", err.Error)
 		return nil, resp, err

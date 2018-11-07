@@ -28,17 +28,17 @@ var _ = Describe("Site", func() {
 
 			sites := []Site{
 				Site{
-					Id:     1,
+					ID:     1,
 					Url:    "http://foobar.com",
-					TeamId: 170,
+					TeamID: 170,
 					Checks: []Check{
 						Check{
-							Id:      1,
+							ID:      1,
 							Type:    UptimeCheck,
 							Enabled: true,
 						},
 						Check{
-							Id:      1,
+							ID:      1,
 							Type:    BrokenLinksCheck,
 							Enabled: true,
 						},
@@ -69,17 +69,17 @@ var _ = Describe("Site", func() {
 		It("Should get the site by ID", func() {
 
 			siteData := &Site{
-				Id:     1,
+				ID:     1,
 				Url:    "http://foobar.com",
-				TeamId: 170,
+				TeamID: 170,
 				Checks: []Check{
 					Check{
-						Id:      1,
+						ID:      1,
 						Type:    UptimeCheck,
 						Enabled: true,
 					},
 					Check{
-						Id:      1,
+						ID:      1,
 						Type:    BrokenLinksCheck,
 						Enabled: true,
 					},
@@ -108,7 +108,7 @@ var _ = Describe("Site", func() {
 		It("should return a new site", func() {
 			site := &Site{
 				Url:    "http://foobar.com",
-				TeamId: 170,
+				TeamID: 170,
 				Checks: []Check{
 					Check{
 						Type: UptimeCheck,
@@ -120,17 +120,17 @@ var _ = Describe("Site", func() {
 			}
 
 			responseSite := &Site{
-				Id:     1,
+				ID:     1,
 				Url:    "http://foobar.com",
-				TeamId: 170,
+				TeamID: 170,
 				Checks: []Check{
 					Check{
-						Id:      1,
+						ID:      1,
 						Type:    UptimeCheck,
 						Enabled: true,
 					},
 					Check{
-						Id:      2,
+						ID:      2,
 						Type:    BrokenLinksCheck,
 						Enabled: true,
 					},
@@ -147,9 +147,9 @@ var _ = Describe("Site", func() {
 			site, _, err := client.SiteService.CreateSite(site)
 
 			Expect(err).To(BeNil())
-			Expect(site.Id).To(Equal(responseSite.Id))
+			Expect(site.ID).To(Equal(responseSite.ID))
 			Expect(site.Url).To(Equal(responseSite.Url))
-			Expect(site.TeamId).To(Equal(responseSite.TeamId))
+			Expect(site.TeamID).To(Equal(responseSite.TeamID))
 			Expect(len(site.Checks)).To(Equal(len(responseSite.Checks)))
 			Expect(gock.IsDone()).To(BeTrue())
 		})
@@ -163,14 +163,14 @@ var _ = Describe("Site", func() {
 
 		It("should delete the specified site", func() {
 			site := &Site{
-				Id: 170,
+				ID: 170,
 			}
 
 			gock.New("http://test.org").
 				Delete("/api/sites/170").
 				Reply(204)
 
-			resp, err := client.SiteService.DeleteSite(site.Id)
+			resp, err := client.SiteService.DeleteSite(site.ID)
 
 			Expect(err).To(BeNil())
 			Expect(gock.IsDone()).To(BeTrue())
