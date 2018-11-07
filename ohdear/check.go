@@ -23,7 +23,7 @@ var CheckTypes = []string{
 }
 
 type Check struct {
-	Id      int    `json:"id,omitempty"`
+	ID      int    `json:"id,omitempty"`
 	Type    string `json:"type,omitempty"`
 	Enabled bool   `json:"enabled,omitempty"`
 }
@@ -33,11 +33,11 @@ type CheckService struct {
 }
 
 func (c *CheckService) EnableCheck(check *Check) (*http.Response, error) {
-	return c.performCheckAction(check.Id, "enable")
+	return c.performCheckAction(check.ID, "enable")
 }
 
 func (c *CheckService) DisableCheck(check *Check) (*http.Response, error) {
-	return c.performCheckAction(check.Id, "disable")
+	return c.performCheckAction(check.ID, "disable")
 }
 
 func (c *CheckService) performCheckAction(id int, lifecycleAction string) (*http.Response, error) {
