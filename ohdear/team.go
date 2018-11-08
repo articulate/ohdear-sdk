@@ -40,7 +40,7 @@ func (t *TeamService) ListTeams() ([]Team, *http.Response, error) {
 	}
 
 	if resp.StatusCode >= 300 {
-		log.Errorf("Error Retrieving teams from OhDear: %v", err.Error)
+		log.Errorf("Error Retrieving teams from OhDear: %v", err)
 		return nil, resp, err
 	}
 	return userinfo.Teams, resp, err

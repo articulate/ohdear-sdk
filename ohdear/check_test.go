@@ -5,6 +5,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	gock "gopkg.in/h2non/gock.v1"
+	"net/http"
 )
 
 var _ = Describe("Check", func() {
@@ -18,50 +19,34 @@ var _ = Describe("Check", func() {
 		client *Client
 	)
 
+	BeforeEach(func() {
+		client, _ = NewClient(testBaseURL, testToken)
+	})
+
 	Context("POST /api/sites/:site/enable", func() {
-
-		BeforeEach(func() {
-			client, _ = NewClient(testBaseURL, testToken)
-		})
-
 		It("Should return a 204", func() {
-
-			check := &Check{
-				ID: 42,
-			}
-
-			gock.New("http://test.org").
+			gock.New(testBaseURL).
 				Post("/api/checks/42/enable").
 				Reply(204)
 
-			resp, err := client.CheckService.EnableCheck(check)
+			resp, err := client.CheckService.EnableCheck(42)
 
 			Expect(err).To(BeNil())
-			Expect(resp.Status).To(Equal("204 No Content"))
+			Expect(resp.StatusCode).To(Equal(http.StatusNoContent))
 			Expect(gock.IsDone()).To(BeTrue())
 		})
 	})
 
 	Context("POST /api/sites/:site/disable", func() {
-
-		BeforeEach(func() {
-			client, _ = NewClient(testBaseURL, testToken)
-		})
-
 		It("Should return a 204", func() {
-
-			check := &Check{
-				ID: 42,
-			}
-
-			gock.New("http://test.org").
+			gock.New(testBaseURL).
 				Post("/api/checks/42/disable").
 				Reply(204)
 
-			resp, err := client.CheckService.DisableCheck(check)
+			resp, err := client.CheckService.DisableCheck(42)
 
 			Expect(err).To(BeNil())
-			Expect(resp.Status).To(Equal("204 No Content"))
+			Expect(resp.StatusCode).To(Equal(http.StatusNoContent))
 			Expect(gock.IsDone()).To(BeTrue())
 		})
 	})
