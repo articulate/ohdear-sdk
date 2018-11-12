@@ -13,7 +13,7 @@ const (
 	CertTransparencyCheck = "certificate_transparency"
 )
 
-// Collection of all check types - for iteration
+// CheckTypes Collection of all check types - for iteration
 var CheckTypes = []string{
 	UptimeCheck,
 	BrokenLinksCheck,
@@ -22,22 +22,28 @@ var CheckTypes = []string{
 	CertTransparencyCheck,
 }
 
-type Check struct {
-	ID      int    `json:"id,omitempty"`
-	Type    string `json:"type,omitempty"`
-	Enabled bool   `json:"enabled,omitempty"`
+type (
+	// Check represents a Site Check
+	Check struct {
+		ID      int    `json:"id,omitempty"`
+		Type    string `json:"type,omitempty"`
+		Enabled bool   `json:"enabled,omitempty"`
+	}
+
+	// CheckService service for interacting with checks
+	CheckService struct {
+		client *Client
+	}
+)
+
+// EnableCheck activation endpoint for a site check
+func (c *CheckService) EnableCheck(id int) (*http.Response, error) {
+	return c.performCheckAction(id, "enable")
 }
 
-type CheckService struct {
-	client *Client
-}
-
-func (c *CheckService) EnableCheck(check *Check) (*http.Response, error) {
-	return c.performCheckAction(check.ID, "enable")
-}
-
-func (c *CheckService) DisableCheck(check *Check) (*http.Response, error) {
-	return c.performCheckAction(check.ID, "disable")
+// DisableCheck deactivation endpoint for a site check
+func (c *CheckService) DisableCheck(id int) (*http.Response, error) {
+	return c.performCheckAction(id, "disable")
 }
 
 func (c *CheckService) performCheckAction(id int, lifecycleAction string) (*http.Response, error) {

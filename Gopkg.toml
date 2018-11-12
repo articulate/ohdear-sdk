@@ -23,7 +23,15 @@
 #   non-go = false
 #   go-tests = true
 #   unused-packages = true
+required = [
+  "github.com/onsi/ginkgo",
+  "github.com/onsi/gomega",
+  "gopkg.in/h2non/gock.v1"
+]
 
+[[constraint]]
+  branch = "master"
+  name = "github.com/prometheus/common"
 
 [prune]
   go-tests = true

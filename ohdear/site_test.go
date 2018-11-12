@@ -5,6 +5,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	gock "gopkg.in/h2non/gock.v1"
+	"net/http"
 )
 
 var _ = Describe("Site", func() {
@@ -15,167 +16,125 @@ var _ = Describe("Site", func() {
 	)
 
 	var (
-		client *Client
+		client          *Client
+		testSite        *Site
+		testSiteRequest *SiteRequest
 	)
 
+	BeforeEach(func() {
+		client, _ = NewClient(testBaseURL, testToken)
+		testSite = &Site{
+			ID:     1,
+			URL:    "http://foobar.com",
+			TeamID: 170,
+			Checks: []Check{
+				Check{
+					ID:      1,
+					Type:    UptimeCheck,
+					Enabled: true,
+				},
+				Check{
+					ID:      1,
+					Type:    BrokenLinksCheck,
+					Enabled: true,
+				},
+			},
+		}
+		testSiteRequest = &SiteRequest{
+			URL:    testSite.URL,
+			TeamID: testSite.ID,
+			Checks: []string{
+				BrokenLinksCheck,
+				UptimeCheck,
+			},
+		}
+	})
+
 	Context("GET /api/sites", func() {
-
-		BeforeEach(func() {
-			client, _ = NewClient(testBaseURL, testToken)
-		})
-
 		It("Should get a list of sites", func() {
 
-			sites := []Site{
-				Site{
-					ID:     1,
-					Url:    "http://foobar.com",
-					TeamID: 170,
-					Checks: []Check{
-						Check{
-							ID:      1,
-							Type:    UptimeCheck,
-							Enabled: true,
-						},
-						Check{
-							ID:      1,
-							Type:    BrokenLinksCheck,
-							Enabled: true,
-						},
-					},
-				},
-			}
+			sites := []*Site{testSite}
 
-			gock.New("http://test.org").
+			gock.New(testBaseURL).
 				Get("/api/sites").
 				Reply(200).
 				JSON(sites)
 
-			res, resp, err := client.SiteService.ListSites()
+			actual, resp, err := client.SiteService.ListSites()
 
 			Expect(err).To(BeNil())
-			Expect(res).To(Equal(sites))
+
+			for i, expected := range sites {
+				assertSite(expected, actual[i])
+			}
 			Expect(resp.StatusCode).To(Equal(200))
 			Expect(gock.IsDone()).To(BeTrue())
 		})
 	})
 
 	Context("GET /api/sites/:id", func() {
-
-		BeforeEach(func() {
-			client, _ = NewClient(testBaseURL, testToken)
-		})
-
 		It("Should get the site by ID", func() {
-
-			siteData := &Site{
-				ID:     1,
-				Url:    "http://foobar.com",
-				TeamID: 170,
-				Checks: []Check{
-					Check{
-						ID:      1,
-						Type:    UptimeCheck,
-						Enabled: true,
-					},
-					Check{
-						ID:      1,
-						Type:    BrokenLinksCheck,
-						Enabled: true,
-					},
-				},
-			}
-
-			gock.New("http://test.org").
+			gock.New(testBaseURL).
 				Get("/api/sites/1").
 				Reply(200).
-				JSON(siteData)
+				JSON(testSite)
 
 			site, _, err := client.SiteService.GetSite(1)
 
 			Expect(err).To(BeNil())
-			Expect(site).To(Equal(siteData))
+			Expect(site.ID).To(Equal(testSite.ID))
+			Expect(site.URL).To(Equal(testSite.URL))
+			Expect(site.Checks).To(Equal(testSite.Checks))
 			Expect(gock.IsDone()).To(BeTrue())
 		})
 	})
 
 	Context("POST /api/sites", func() {
-
-		BeforeEach(func() {
-			client, _ = NewClient(testBaseURL, testToken)
-		})
-
 		It("should return a new site", func() {
-			site := &Site{
-				Url:    "http://foobar.com",
-				TeamID: 170,
-				Checks: []Check{
-					Check{
-						Type: UptimeCheck,
-					},
-					Check{
-						Type: BrokenLinksCheck,
-					},
-				},
-			}
-
-			responseSite := &Site{
-				ID:     1,
-				Url:    "http://foobar.com",
-				TeamID: 170,
-				Checks: []Check{
-					Check{
-						ID:      1,
-						Type:    UptimeCheck,
-						Enabled: true,
-					},
-					Check{
-						ID:      2,
-						Type:    BrokenLinksCheck,
-						Enabled: true,
-					},
-				},
-			}
-
-			gock.New("http://test.org").
+			gock.New(testBaseURL).
 				Post("/api/sites").
 				MatchType("json").
-				JSON(site).
+				JSON(testSiteRequest).
 				Reply(201).
-				JSON(responseSite)
+				JSON(testSite)
 
-			site, _, err := client.SiteService.CreateSite(site)
+			site, _, err := client.SiteService.CreateSite(testSiteRequest)
 
 			Expect(err).To(BeNil())
-			Expect(site.ID).To(Equal(responseSite.ID))
-			Expect(site.Url).To(Equal(responseSite.Url))
-			Expect(site.TeamID).To(Equal(responseSite.TeamID))
-			Expect(len(site.Checks)).To(Equal(len(responseSite.Checks)))
 			Expect(gock.IsDone()).To(BeTrue())
+			Expect(site.ID).To(Equal(testSite.ID))
+			Expect(site.URL).To(Equal(testSite.URL))
+			Expect(site.TeamID).To(Equal(testSite.TeamID))
+
+			for i, c := range testSite.Checks {
+				Expect(site.Checks[i].Type).To(Equal(c.Type))
+			}
 		})
 	})
 
 	Context("DELETE /api/sites", func() {
-
-		BeforeEach(func() {
-			client, _ = NewClient(testBaseURL, testToken)
-		})
-
 		It("should delete the specified site", func() {
-			site := &Site{
-				ID: 170,
-			}
-
-			gock.New("http://test.org").
+			gock.New(testBaseURL).
 				Delete("/api/sites/170").
 				Reply(204)
 
-			resp, err := client.SiteService.DeleteSite(site.ID)
+			resp, err := client.SiteService.DeleteSite(170)
 
 			Expect(err).To(BeNil())
 			Expect(gock.IsDone()).To(BeTrue())
-			Expect(resp.Status).To(Equal("204 No Content"))
+			Expect(resp.StatusCode).To(Equal(http.StatusNoContent))
 			Expect(gock.IsDone()).To(BeTrue())
 		})
 	})
 })
+
+func assertSite(expected *Site, actual *Site) {
+	Expect(expected.ID).To(Equal(actual.ID))
+	Expect(expected.URL).To(Equal(actual.URL))
+	Expect(expected.TeamID).To(Equal(actual.TeamID))
+	Expect(len(expected.Checks)).To(Equal(len(actual.Checks)))
+
+	for i, c := range expected.Checks {
+		Expect(actual.Checks[i].Type).To(Equal(c.Type))
+	}
+}
