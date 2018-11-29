@@ -7,14 +7,17 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
+	"time"
 )
 
 type Client struct {
 	BaseURL   *url.URL
 	UserAgent string
 
-	ApiToken   string
-	httpClient *http.Client
+	ApiToken      string
+	httpClient    *http.Client
+	RateLimitOver time.Time // When rate-limiting ends
 
 	SiteService  *SiteService
 	CheckService *CheckService
@@ -82,6 +85,14 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 
 	if err != nil {
 		return nil, err
+	} else if resp.StatusCode == 429 {
+		secLeft, err := strconv.Atoi(resp.Header.Get("X-RateLimit-Remaining"))
+		if err != nil {
+			err = fmt.Errorf("Error while parsing backoff header: %v", err)
+			return resp, err
+		}
+		durSeconds := time.Duration(secLeft) * time.Second
+		c.RateLimitOver = time.Now().Add(durSeconds)
 	} else if resp.StatusCode >= 300 {
 		err = fmt.Errorf("Invalid Status: %d", resp.StatusCode)
 
