@@ -81,27 +81,35 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 }
 
 func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
-	resp, err := c.httpClient.Do(req)
+	if time.Now().UnixNano() > c.RateLimitOver.UnixNano() {
+		resp, err := c.httpClient.Do(req)
 
-	if err != nil {
-		return nil, err
-	} else if resp.StatusCode == 429 {
-		secLeft, err := strconv.Atoi(resp.Header.Get("X-RateLimit-Remaining"))
 		if err != nil {
-			err = fmt.Errorf("Error while parsing backoff header: %v", err)
+			return nil, err
+		} else if resp.StatusCode == 429 {
+			secLeft, err := strconv.Atoi(resp.Header.Get("X-RateLimit-Remaining"))
+			if err != nil {
+				err = fmt.Errorf("Error while parsing backoff header: %v", err)
+				return resp, err
+			}
+			durSeconds := time.Duration(secLeft) * time.Second
+			c.RateLimitOver = time.Now().Add(durSeconds)
+		} else if resp.StatusCode >= 300 {
+			err = fmt.Errorf("Invalid Status: %d", resp.StatusCode)
+
 			return resp, err
 		}
-		durSeconds := time.Duration(secLeft) * time.Second
-		c.RateLimitOver = time.Now().Add(durSeconds)
-	} else if resp.StatusCode >= 300 {
-		err = fmt.Errorf("Invalid Status: %d", resp.StatusCode)
+
+		if v != nil {
+			err = json.NewDecoder(resp.Body).Decode(v)
+		}
 
 		return resp, err
-	}
+	} else {
+		secLeft := c.RateLimitOver.Sub(time.Now())
+		fmt.Printf("[WARN] Rate limiting in effect, retrying in %s sec...", secLeft)
 
-	if v != nil {
-		err = json.NewDecoder(resp.Body).Decode(v)
+		time.Sleep(secLeft)
+		return c.do(req, v)
 	}
-
-	return resp, err
 }
