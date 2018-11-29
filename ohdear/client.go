@@ -7,6 +7,12 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"time"
+)
+
+const (
+	RPMLimit = 180 // Number of requests per minute allowed before throttling
+	rate     = time.Minute / RPMLimit
 )
 
 type Client struct {
@@ -15,6 +21,7 @@ type Client struct {
 
 	ApiToken   string
 	httpClient *http.Client
+	limiter    <-chan time.Time
 
 	SiteService  *SiteService
 	CheckService *CheckService
@@ -35,6 +42,7 @@ func NewClient(baseURL string, apiToken string) (*Client, error) {
 		BaseURL:    u,
 	}
 
+	c.limiter = time.Tick(rate)
 	c.SiteService = &SiteService{client: c}
 	c.CheckService = &CheckService{client: c}
 	c.TeamService = &TeamService{client: c}
@@ -78,6 +86,7 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 }
 
 func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
+	<-c.limiter // Throttle requests to one every 180th of a second
 	resp, err := c.httpClient.Do(req)
 
 	if err != nil {
