@@ -52,7 +52,7 @@ var _ = Describe("./Client", func() {
 			gock.New(testBaseURL).
 				Get("/api/sites").
 				Reply(429).
-				SetHeader("X-RateLimit-Remaining", "3").
+				SetHeader("X-RateLimit-Reset", "3").
 				JSON("[]")
 
 			gock.New(testBaseURL).
