@@ -33,9 +33,9 @@ func NewClient(baseURL string, apiToken string) (*Client, error) {
 	}
 
 	c := &Client{
-		httpClient: httpClient,
 		ApiToken:   apiToken,
 		BaseURL:    u,
+		httpClient: httpClient,
 	}
 
 	c.SiteService = &SiteService{client: c}
@@ -80,36 +80,43 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 	return req, nil
 }
 
+func (c *Client) shouldWait() bool {
+	return time.Now().UnixNano() < c.RateLimitOver.UnixNano()
+}
+
+func (c *Client) timeLeftToWait() time.Duration {
+	return c.RateLimitOver.Sub(time.Now())
+}
+
 func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
-	if time.Now().UnixNano() > c.RateLimitOver.UnixNano() {
-		resp, err := c.httpClient.Do(req)
-
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	} else if resp.StatusCode == 429 {
+		secLeft, err := strconv.Atoi(resp.Header.Get("X-RateLimit-Remaining"))
 		if err != nil {
-			return nil, err
-		} else if resp.StatusCode == 429 {
-			secLeft, err := strconv.Atoi(resp.Header.Get("X-RateLimit-Remaining"))
-			if err != nil {
-				err = fmt.Errorf("Error while parsing backoff header: %v", err)
-				return resp, err
-			}
-			durSeconds := time.Duration(secLeft) * time.Second
-			c.RateLimitOver = time.Now().Add(durSeconds)
-		} else if resp.StatusCode >= 300 {
-			err = fmt.Errorf("Invalid Status: %d", resp.StatusCode)
-
+			err = fmt.Errorf("Error while parsing backoff header: %v", err)
 			return resp, err
 		}
+		durSeconds := time.Duration(secLeft) * time.Second
+		c.RateLimitOver = time.Now().Add(durSeconds)
 
-		if v != nil {
-			err = json.NewDecoder(resp.Body).Decode(v)
-		}
+	} else if resp.StatusCode >= 300 {
+		err = fmt.Errorf("Invalid Status: %d", resp.StatusCode)
 
 		return resp, err
-	} else {
-		secLeft := c.RateLimitOver.Sub(time.Now())
-		fmt.Printf("[WARN] Rate limiting in effect, retrying in %s sec...", secLeft)
+	}
 
-		time.Sleep(secLeft)
+	if c.shouldWait() {
+		timeLeft := c.timeLeftToWait()
+		fmt.Printf("[WARN] Rate limiting in effect, retrying in %s sec...", timeLeft)
+		time.Sleep(timeLeft)
 		return c.do(req, v)
 	}
+
+	if v != nil {
+		err = json.NewDecoder(resp.Body).Decode(v)
+	}
+
+	return resp, err
 }
