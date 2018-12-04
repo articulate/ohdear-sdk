@@ -19,12 +19,12 @@ var _ = Describe("./Client", func() {
 
 	var (
 		client      *Client
-		mockSleeper mocks.MockSleeper
+		mockSleeper *mocks.MockSleeper
 	)
 
 	BeforeEach(func() {
 		client, _ = NewClient(testBaseURL, testToken)
-		mockSleeper = mocks.MockSleeper{}
+		mockSleeper = &mocks.MockSleeper{}
 		client.Sleeper = mockSleeper
 	})
 
@@ -49,13 +49,13 @@ var _ = Describe("./Client", func() {
 		})
 	})
 
-	FContext("Rate Limiting", func() {
-		It("should respect 429 headers", func() {
+	Context("Rate Limiting", func() {
+		It("should call the sleeper", func() {
 			sites := []*Site{}
 			gock.New(testBaseURL).
 				Get("/api/sites").
 				Reply(429).
-				SetHeader("X-RateLimit-Reset", "3").
+				SetHeader("X-RateLimit-Reset", "10").
 				JSON("[]")
 
 			gock.New(testBaseURL).
@@ -66,7 +66,7 @@ var _ = Describe("./Client", func() {
 			_, _, err := client.SiteService.ListSites()
 
 			Expect(err).To(BeNil())
-			Expect(mockSleeper.SleepCall.Receives.Time).To(Equal(3))
+			Expect(mockSleeper.SleepCall.Count).To(Equal(1))
 		})
 	})
 })

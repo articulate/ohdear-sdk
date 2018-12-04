@@ -93,10 +93,6 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 	return req, nil
 }
 
-func (c *Client) shouldWait() bool {
-	return time.Now().UnixNano() < c.RateLimitOver.UnixNano()
-}
-
 func (c *Client) timeLeftToWait() time.Duration {
 	return c.RateLimitOver.Sub(time.Now())
 }
@@ -114,17 +110,15 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 		durSeconds := time.Duration(secLeft) * time.Second
 		c.RateLimitOver = time.Now().Add(durSeconds)
 
-	} else if resp.StatusCode >= 300 {
-		err = fmt.Errorf("Invalid Status: %d", resp.StatusCode)
-
-		return resp, err
-	}
-
-	if c.shouldWait() {
 		timeLeft := c.timeLeftToWait()
 		fmt.Printf("[WARN] Rate limiting in effect, retrying in %s sec...", timeLeft)
 		c.Sleeper.Sleep(timeLeft)
 		return c.do(req, v)
+
+	} else if resp.StatusCode >= 300 {
+		err = fmt.Errorf("Invalid Status: %d", resp.StatusCode)
+
+		return resp, err
 	}
 
 	if v != nil {
