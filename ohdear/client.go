@@ -11,6 +11,16 @@ import (
 	"time"
 )
 
+type Sleeper interface {
+	Sleep(time.Duration)
+}
+
+type StdLibSleeper struct{}
+
+func (s StdLibSleeper) Sleep(seconds time.Duration) {
+	time.Sleep(seconds)
+}
+
 type Client struct {
 	BaseURL   *url.URL
 	UserAgent string
@@ -22,6 +32,8 @@ type Client struct {
 	SiteService  *SiteService
 	CheckService *CheckService
 	TeamService  *TeamService
+
+	Sleeper
 }
 
 func NewClient(baseURL string, apiToken string) (*Client, error) {
@@ -42,6 +54,7 @@ func NewClient(baseURL string, apiToken string) (*Client, error) {
 	c.CheckService = &CheckService{client: c}
 	c.TeamService = &TeamService{client: c}
 
+	c.Sleeper = StdLibSleeper{}
 	return c, nil
 }
 
@@ -93,7 +106,7 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	} else if resp.StatusCode == 429 {
-		secLeft, err := strconv.Atoi(resp.Header.Get("X-RateLimit-Remaining"))
+		secLeft, err := strconv.Atoi(resp.Header.Get("X-RateLimit-Reset"))
 		if err != nil {
 			err = fmt.Errorf("Error while parsing backoff header: %v", err)
 			return resp, err
@@ -110,7 +123,7 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 	if c.shouldWait() {
 		timeLeft := c.timeLeftToWait()
 		fmt.Printf("[WARN] Rate limiting in effect, retrying in %s sec...", timeLeft)
-		time.Sleep(timeLeft)
+		c.Sleeper.Sleep(timeLeft)
 		return c.do(req, v)
 	}
 
