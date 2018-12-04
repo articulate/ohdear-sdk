@@ -4,8 +4,10 @@ import (
 	"fmt"
 
 	. "github.com/articulate/ohdear-sdk/ohdear"
+	"github.com/articulate/ohdear-sdk/ohdear/mocks"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	gock "gopkg.in/h2non/gock.v1"
 )
 
 var _ = Describe("./Client", func() {
@@ -16,11 +18,14 @@ var _ = Describe("./Client", func() {
 	)
 
 	var (
-		client *Client
+		client      *Client
+		mockSleeper *mocks.MockSleeper
 	)
 
 	BeforeEach(func() {
 		client, _ = NewClient(testBaseURL, testToken)
+		mockSleeper = &mocks.MockSleeper{}
+		client.Sleeper = mockSleeper
 	})
 
 	Context("Base URL", func() {
@@ -41,6 +46,27 @@ var _ = Describe("./Client", func() {
 			wantHeader := fmt.Sprintf("Bearer %v", testToken)
 
 			Expect(header).To(Equal(wantHeader))
+		})
+	})
+
+	Context("Rate Limiting", func() {
+		It("should call the sleeper", func() {
+			sites := []*Site{}
+			gock.New(testBaseURL).
+				Get("/api/sites").
+				Reply(429).
+				SetHeader("X-RateLimit-Reset", "10").
+				JSON("[]")
+
+			gock.New(testBaseURL).
+				Get("/api/sites").
+				Reply(200).
+				JSON(sites)
+
+			_, _, err := client.SiteService.ListSites()
+
+			Expect(err).To(BeNil())
+			Expect(mockSleeper.SleepCall.Count).To(Equal(1))
 		})
 	})
 })
