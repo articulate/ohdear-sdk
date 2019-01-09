@@ -64,7 +64,7 @@ func (s *SiteService) GetSite(siteID int) (*Site, *http.Response, error) {
 	}
 
 	resp, err := s.client.do(req, site)
-	if err != nil {
+	if err != nil && resp.StatusCode != http.StatusNotFound {
 		log.Errorf("Error retrieving site from OhDear: %v", err)
 		return nil, resp, err
 	}
@@ -102,7 +102,7 @@ func (s *SiteService) DeleteSite(siteID int) (*http.Response, error) {
 	}
 
 	resp, err := s.client.do(req, nil)
-	if err != nil {
+	if err != nil && resp.StatusCode != http.StatusNotFound {
 		log.Errorf("Error deleting site from OhDear: %v", err)
 	}
 
