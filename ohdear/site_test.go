@@ -1,11 +1,12 @@
 package ohdear_test
 
 import (
+	"net/http"
+
 	. "github.com/articulate/ohdear-sdk/ohdear"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	gock "gopkg.in/h2non/gock.v1"
-	"net/http"
 )
 
 var _ = Describe("Site", func() {
@@ -22,7 +23,7 @@ var _ = Describe("Site", func() {
 	)
 
 	BeforeEach(func() {
-		client, _ = NewClient(testBaseURL, testToken)
+		client, _ = NewClient(testBaseURL, testToken, nil)
 		testSite = &Site{
 			ID:     1,
 			URL:    "http://foobar.com",

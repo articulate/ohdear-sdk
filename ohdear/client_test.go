@@ -23,7 +23,7 @@ var _ = Describe("./Client", func() {
 	)
 
 	BeforeEach(func() {
-		client, _ = NewClient(testBaseURL, testToken)
+		client, _ = NewClient(testBaseURL, testToken, nil)
 		mockSleeper = &mocks.MockSleeper{}
 		client.Sleeper = mockSleeper
 	})

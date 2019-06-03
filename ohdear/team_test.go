@@ -21,7 +21,7 @@ var _ = Describe("Team", func() {
 	Context("GET /api/me", func() {
 
 		BeforeEach(func() {
-			client, _ = NewClient(testBaseURL, testToken)
+			client, _ = NewClient(testBaseURL, testToken, nil)
 		})
 
 		It("Should get a list of teams", func() {
