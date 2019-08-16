@@ -11,11 +11,13 @@ import (
 	"time"
 )
 
-type Sleeper interface {
-	Sleep(time.Duration)
-}
+type (
+	Sleeper interface {
+		Sleep(time.Duration)
+	}
 
-type StdLibSleeper struct{}
+	StdLibSleeper struct{}
+)
 
 func (s StdLibSleeper) Sleep(seconds time.Duration) {
 	time.Sleep(seconds)
@@ -36,12 +38,14 @@ type Client struct {
 	Sleeper
 }
 
-func NewClient(baseURL string, apiToken string) (*Client, error) {
-	httpClient := http.DefaultClient
+func NewClient(baseURL string, apiToken string, httpClient *http.Client) (*Client, error) {
+	if httpClient == nil {
+		httpClient = http.DefaultClient
+	}
 
 	u, err := url.Parse(baseURL)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Invalid base URL provided to SDK, error: %v", err)
 	}
 
 	c := &Client{
@@ -116,9 +120,12 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 		return c.do(req, v)
 
 	} else if resp.StatusCode >= 300 {
-		err = fmt.Errorf("Invalid Status: %d", resp.StatusCode)
-
-		return resp, err
+		var apiErr *ApiError
+		err = json.NewDecoder(resp.Body).Decode(apiErr)
+		if err != nil {
+			return resp, fmt.Errorf("API Error: %s", resp.Status)
+		}
+		return resp, apiErr
 	}
 
 	if v != nil {
