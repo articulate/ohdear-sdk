@@ -6,13 +6,13 @@ import (
 )
 
 type (
-	ApiError struct {
+	APIError struct {
 		Message string              `json:"message,omitempty"`
 		Errors  map[string][]string `json:"errors,omitempty"`
 	}
 )
 
-func (e *ApiError) Error() string {
+func (e *APIError) Error() string {
 	causes := []string{}
 	for key, cause := range e.Errors {
 		causes = append(causes, fmt.Sprintf("%s: %s", key, strings.Join(cause, ", ")))

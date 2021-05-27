@@ -3,10 +3,11 @@ package ohdear_test
 import (
 	"net/http"
 
-	. "github.com/articulate/ohdear-sdk/ohdear"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	gock "gopkg.in/h2non/gock.v1"
+
+	. "github.com/articulate/ohdear-sdk/ohdear"
 )
 
 var _ = Describe("Check", func() {

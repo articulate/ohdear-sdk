@@ -3,11 +3,12 @@ package ohdear_test
 import (
 	"fmt"
 
-	. "github.com/articulate/ohdear-sdk/ohdear"
-	"github.com/articulate/ohdear-sdk/ohdear/mocks"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	gock "gopkg.in/h2non/gock.v1"
+
+	. "github.com/articulate/ohdear-sdk/ohdear"
+	"github.com/articulate/ohdear-sdk/ohdear/mocks"
 )
 
 var _ = Describe("./Client", func() {

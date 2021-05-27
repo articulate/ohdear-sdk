@@ -27,7 +27,7 @@ type Client struct {
 	BaseURL   *url.URL
 	UserAgent string
 
-	ApiToken      string
+	APIToken      string
 	httpClient    *http.Client
 	RateLimitOver time.Time // When rate-limiting ends
 
@@ -49,7 +49,7 @@ func NewClient(baseURL string, apiToken string, httpClient *http.Client) (*Clien
 	}
 
 	c := &Client{
-		ApiToken:   apiToken,
+		APIToken:   apiToken,
 		BaseURL:    u,
 		httpClient: httpClient,
 	}
@@ -60,11 +60,6 @@ func NewClient(baseURL string, apiToken string, httpClient *http.Client) (*Clien
 
 	c.Sleeper = StdLibSleeper{}
 	return c, nil
-}
-
-func (c *Client) validate() (bool, error) {
-	_, _, err := c.TeamService.ListTeams()
-	return err == nil, err
 }
 
 func (c *Client) NewRequest(method, path string, body interface{}) (*http.Request, error) {
@@ -91,14 +86,14 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+c.ApiToken)
+	req.Header.Set("Authorization", "Bearer "+c.APIToken)
 	req.Header.Set("UserAgent", c.UserAgent)
 
 	return req, nil
 }
 
 func (c *Client) timeLeftToWait() time.Duration {
-	return c.RateLimitOver.Sub(time.Now())
+	return time.Until(c.RateLimitOver)
 }
 
 func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
@@ -118,9 +113,8 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 		fmt.Printf("[WARN] Rate limiting in effect, retrying in %s sec...", timeLeft)
 		c.Sleeper.Sleep(timeLeft)
 		return c.do(req, v)
-
 	} else if resp.StatusCode >= 300 {
-		var apiErr *ApiError
+		var apiErr *APIError
 		err = json.NewDecoder(resp.Body).Decode(apiErr)
 		if err != nil {
 			return resp, fmt.Errorf("API Error: %s", resp.Status)
