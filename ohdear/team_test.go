@@ -1,10 +1,11 @@
 package ohdear_test
 
 import (
-	. "github.com/articulate/ohdear-sdk/ohdear"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	gock "gopkg.in/h2non/gock.v1"
+
+	. "github.com/articulate/ohdear-sdk/ohdear"
 )
 
 var _ = Describe("Team", func() {
@@ -29,7 +30,7 @@ var _ = Describe("Team", func() {
 			userInfo := &UserInfo{
 				ID: 1,
 				Teams: []Team{
-					Team{
+					{
 						ID:   1,
 						Name: "The Goonies",
 					},
