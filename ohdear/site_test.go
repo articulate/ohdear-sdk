@@ -55,7 +55,7 @@ var _ = Describe("Site", func() {
 	Context("GET /api/sites", func() {
 		It("Should get a list of sites", func() {
 
-			sites := []*Site{testSite}
+			sites := SiteList{Sites: []*Site{testSite}}
 
 			gock.New(testBaseURL).
 				Get("/api/sites").
@@ -66,7 +66,7 @@ var _ = Describe("Site", func() {
 
 			Expect(err).To(BeNil())
 
-			for i, expected := range sites {
+			for i, expected := range sites.Sites {
 				assertSite(expected, actual[i])
 			}
 			Expect(resp.StatusCode).To(Equal(200))

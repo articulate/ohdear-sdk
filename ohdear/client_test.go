@@ -52,12 +52,12 @@ var _ = Describe("./Client", func() {
 
 	Context("Rate Limiting", func() {
 		It("should call the sleeper", func() {
-			sites := []*Site{}
+			sites := SiteList{Sites: []*Site{}}
 			gock.New(testBaseURL).
 				Get("/api/sites").
 				Reply(429).
 				SetHeader("X-RateLimit-Reset", "10").
-				JSON("[]")
+				JSON("{}")
 
 			gock.New(testBaseURL).
 				Get("/api/sites").
