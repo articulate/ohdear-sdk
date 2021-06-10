@@ -20,6 +20,11 @@ type (
 		Checks                []Check `json:"checks,omitempty"`
 	}
 
+	// SiteList represents the response from site list
+	SiteList struct {
+		Sites []*Site `json:"data"`
+	}
+
 	// SiteRequest represents the site creation request body
 	SiteRequest struct {
 		URL    string   `json:"url,omitempty"`
@@ -41,15 +46,15 @@ func (s *SiteService) ListSites() ([]*Site, *http.Response, error) {
 		return nil, nil, err
 	}
 
-	var sites []*Site
+	var data SiteList
 
-	resp, err := s.client.do(req, &sites)
+	resp, err := s.client.do(req, &data)
 	if err != nil {
 		log.Errorf("Error retrieving sites from OhDear: %v", err)
 		return nil, resp, err
 	}
 
-	return sites, resp, err
+	return data.Sites, resp, err
 }
 
 // GetSite retrieves a site from the `/sites/:id` endpoint
