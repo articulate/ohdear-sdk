@@ -12,7 +12,7 @@ var _ = Describe("Team", func() {
 
 	const (
 		testBaseURL = "http://test.org"
-		testToken   = "foobarbazquux"
+		testToken   = "foobarbazquux" //nolint:gosec
 	)
 
 	var (
