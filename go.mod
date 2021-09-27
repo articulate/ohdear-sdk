@@ -1,3 +1,4 @@
+// Deprecated: no replacement provided
 module github.com/articulate/ohdear-sdk
 
 go 1.17
