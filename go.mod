@@ -1,6 +1,6 @@
 module github.com/articulate/ohdear-sdk
 
-go 1.16
+go 1.17
 
 require (
 	github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc // indirect
@@ -21,4 +21,11 @@ require (
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/h2non/gock.v1 v1.0.11
 	gopkg.in/yaml.v2 v2.2.2 // indirect
+)
+
+require (
+	github.com/hpcloud/tail v1.0.0 // indirect
+	github.com/konsorten/go-windows-terminal-sequences v1.0.1 // indirect
+	gopkg.in/fsnotify.v1 v1.4.7 // indirect
+	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 )
